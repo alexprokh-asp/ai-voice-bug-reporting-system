@@ -1,0 +1,611 @@
+{
+  "name": "BugRep_Creat",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        784,
+        144
+      ],
+      "id": "b1b3e305-b16a-4a7a-b075-5306d0ede9b0",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Берём первый элемент входного массива\nconst item = $input.all()[0].json;\n\n// Парсим JSON из строки\nconst parsed = JSON.parse(item.output);\n\n// Возвращаем как объект для следующей ноды\nreturn [{ json: parsed }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "b935b540-f6e8-495a-9f48-0e81ae604559",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0d1f8404-820c-4b30-96a8-62711348d4c0",
+      "name": "Telegram Trigger",
+      "webhookId": "c4335f34-e83a-42be-8f86-cfa2a110bde7",
+      "credentials": {
+        "telegramApi": {
+          "id": "5kJFN1GyPu1HCmZM",
+          "name": "Telegram BugRep"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot8364470939:AAGgtxDiyXOs3HDfHRu8wpEaD7rQLCxLxD4/getFile?file_id={{$json[\"message\"][\"voice\"][\"file_id\"]}}",
+        "options": {}
+      },
+      "id": "13aeec16-dd3d-49b5-9159-f69c8074eb40",
+      "name": "Get File Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot8364470939:AAGgtxDiyXOs3HDfHRu8wpEaD7rQLCxLxD4/{{ $json[\"result\"]?.file_path }}",
+        "options": {}
+      },
+      "id": "7fb41f80-3052-43a9-8683-92809ea921ea",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        464,
+        0
+      ],
+      "id": "0894feb0-aeed-48ea-b9f1-aaaebbd0154a",
+      "name": "STT",
+      "credentials": {
+        "openAiApi": {
+          "id": "LOTYjxQwBxYcI1nF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ты — QA-Engineer, профессиональный помощник по ведению баг-репортов. Твоя задача:\n\nПреобразовывать текст пользователя в баг-репорт. \nОпределить поля, на основании текста, какие поля заполняются:\nID, Type, Severity, Priority, Environment, Summary, Description, Pre-conditions, Steps_to_reproduce, Actual_result, Expected_result, Additional_info.\n\nType определяй по смыслу сообщения: Functional, UI, UI/UX, Performance, Security и др.\n\nSeverity (Blocker, Critical, Major, Minor, Trivial) и Priority (Lowest, Low, Medium, High, Highest) определяй исходя из влияния на пользователей и срочности.\n\nEnvironment: если пользователь не указал, используй последний сохранённый из памяти. Форматируй красиво: «Windows 10, Chrome (latest)», «macOS 13, Safari 16» и т.д.\n\nСохраняй все баги, не удаляй старые. Используй контекст последних 5 багов для последовательности.\n\nЗаполняй все поля максимально полно, анализируя текст целиком. Если не можешь определить поле — оставляй пустым \"\".\n\nSummary и Description формулируй чётко, академично, по стандартам ISTQB.\n\nPre-conditions: если пользователь не указал, формулируй общие предусловия «1. Открыт веб-ресурс… 2. Пользователь авторизован…» при необходимости.\n\nSteps_to_reproduce: описывай только то, что прямо относится к багу, без лишнего (например, не писать «зайти и зарегиться», если это не регистрация).\n\nActual_result и Expected_result формулируй максимально ясно и формально.\n\nAdditional_info: любые дополнительные данные, ссылки, скриншоты, комментарии.\n\nПеревод: если текст на русском, переводи на английский при выводе JSON.\n\nФормат вывода JSON для Google Sheets:\n\n{\n  \"ID\": \"...\",\n  \"Type\": \"...\",\n  \"Severity\": \"...\",\n  \"Priority\": \"...\",\n  \"Environment\": \"...\",\n  \"Summary\": \"...\",\n  \"Description\": \"...\",\n  \"Pre-conditions\": \"...\",\n  \"Steps_to_reproduce\": \"...\",\n  \"Actual_result\": \"...\",\n  \"Expected_result\": \"...\",\n  \"Additional_info\": \"...\"\n}\n\nТекст для анализа: {{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "d977332a-f04c-406b-929f-6b39d36215b8",
+      "name": "AI BugRep Creator"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        144
+      ],
+      "id": "0c38d681-35d0-4e7f-9337-e7bace7327a9",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "LOTYjxQwBxYcI1nF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        144
+      ],
+      "id": "c69db5e2-8781-460e-8cc3-c52ca8ece11e",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NNvYw1HVmcnpVOO4P0dWMk_3sDmh3E1Eww7_8HZmEh4",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1943108804,
+          "mode": "list",
+          "cachedResultName": "Bug_Rep_ID",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NNvYw1HVmcnpVOO4P0dWMk_3sDmh3E1Eww7_8HZmEh4/edit#gid=1943108804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.ID }}",
+            "Type": "={{ $json.Type }}",
+            "Severity": "={{ $json.Severity }}",
+            "Priority": "={{ $json.Priority }}",
+            "Environment": "={{ $json.Environment }}",
+            "Summary": "={{ $json.Summary }}",
+            "Description": "={{ $json.Description }}",
+            "Pre-conditions": "={{ $json[\"Pre-conditions\"] }}",
+            "Steps to reproduce": "={{ $json.Steps_to_reproduce }}",
+            "Actual result": "={{ $json.Actual_result }}",
+            "Expected result": "={{ $json.Expected_result }}",
+            "Additional info": "={{ $json.Additional_info }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Severity",
+              "displayName": "Severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Environment",
+              "displayName": "Environment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pre-conditions",
+              "displayName": "Pre-conditions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Steps to reproduce",
+              "displayName": "Steps to reproduce",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Actual result",
+              "displayName": "Actual result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Expected result",
+              "displayName": "Expected result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Additional info",
+              "displayName": "Additional info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "2f57d36c-2e1a-44dc-a60d-d6959e0beff1",
+      "name": "Bug2Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1024,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "h59G151EeAqUvM4A",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.ID }} {{ $json.Summary }}\n{{ $json.Type }}, {{ $json.Severity }}, {{ $json.Priority }}\n\n{{ $json.Environment }}\n\n{{ $json.Description }}\n\n{{ $json['Pre-conditions'] }}\n\n{{ $json['Steps to reproduce'] }}\n\n{{ $json['Actual result'] }}\n\n{{ $json['Expected result'] }}",
+        "replyMarkup": "replyKeyboardRemove",
+        "replyKeyboardRemove": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "45e65789-5d9e-4107-9986-71d6ca7ebac8",
+      "name": "Send confirmation",
+      "webhookId": "2549464a-3fdc-44ba-8336-04e78771b2c0",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "DfWDlx4xEfExuLdW",
+          "name": "BUG_REP_CREATOR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "16C1VJw7cac6yEqeRDWAqo7WjqvTOOcHI2xYSUi1g9Yk",
+          "mode": "id"
+        },
+        "name": "=BugRep-{{ $now.format(\"yyyy-LL-dd-T\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1024,
+        176
+      ],
+      "id": "a407a99c-415b-45f3-a088-eb5f84379d10",
+      "name": "Copy from temp",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Zgtnhny4XewAYx7m",
+          "name": "Calendar OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "!ID",
+              "replaceText": "={{ $('Code').item.json.ID }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Type",
+              "replaceText": "={{ $('Code').item.json.Type }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Severity",
+              "replaceText": "={{ $('Code').item.json.Severity }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Priority",
+              "replaceText": "={{ $('Code').item.json.Priority }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Environment",
+              "replaceText": "={{ $('Code').item.json.Environment }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "=!Summary",
+              "replaceText": "={{ $('Code').item.json.Summary }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Description",
+              "replaceText": "={{ $('Code').item.json.Description }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Pre-conditions",
+              "replaceText": "={{ $('Code').item.json['Pre-conditions'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Steps-to-reproduce",
+              "replaceText": "={{ $('Code').item.json.Steps_to_reproduce }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Actual",
+              "replaceText": "={{ $('Code').item.json.Actual_result }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Expected",
+              "replaceText": "={{ $('Code').item.json.Expected_result }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Additional",
+              "replaceText": "={{ $('Code').item.json.Additional_info }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        176
+      ],
+      "id": "b8ae1e66-a756-41cc-aa31-4e083d2740f7",
+      "name": "Create BugRep",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "k8luOZqTORD0yVgZ",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI BugRep Creator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Bug2Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Copy from temp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "STT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STT": {
+      "main": [
+        [
+          {
+            "node": "AI BugRep Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get File Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Info": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI BugRep Creator": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI BugRep Creator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI BugRep Creator",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bug2Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy from temp": {
+      "main": [
+        [
+          {
+            "node": "Create BugRep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "10b1264c-b650-4f48-9812-f7c74889fe42",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "144ec203f82f262190a759eb7badfa8217bf8c4d4687b5c5ad9fc814ba3a05f9"
+  },
+  "id": "mpynCkL5KAXMwSAAWllMC",
+  "tags": []
+}
