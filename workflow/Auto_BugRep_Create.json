@@ -50,7 +50,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.telegram.org/bot8364470939:AAGgtxDiyXOs3HDfHRu8wpEaD7rQLCxLxD4/getFile?file_id={{$json[\"message\"][\"voice\"][\"file_id\"]}}",
+        "url": "=https://api.telegram.org/TELEGRAM_BOT_TOKEN/getFile?file_id={{$json[\"message\"][\"voice\"][\"file_id\"]}}",
         "options": {}
       },
       "id": "13aeec16-dd3d-49b5-9159-f69c8074eb40",
@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.telegram.org/file/bot8364470939:AAGgtxDiyXOs3HDfHRu8wpEaD7rQLCxLxD4/{{ $json[\"result\"]?.file_path }}",
+        "url": "=https://api.telegram.org/file/TELEGRAM_BOT_TOKEN/{{ $json[\"result\"]?.file_path }}",
         "options": {}
       },
       "id": "7fb41f80-3052-43a9-8683-92809ea921ea",
@@ -164,7 +164,7 @@
           "value": 1943108804,
           "mode": "list",
           "cachedResultName": "Bug_Rep_ID",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NNvYw1HVmcnpVOO4P0dWMk_3sDmh3E1Eww7_8HZmEh4/edit#gid=1943108804"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/ID_SHEET/edit#gid=ID"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -361,7 +361,7 @@
         "operation": "copy",
         "fileId": {
           "__rl": true,
-          "value": "16C1VJw7cac6yEqeRDWAqo7WjqvTOOcHI2xYSUi1g9Yk",
+          "value": "ID",
           "mode": "id"
         },
         "name": "=BugRep-{{ $now.format(\"yyyy-LL-dd-T\") }}",
