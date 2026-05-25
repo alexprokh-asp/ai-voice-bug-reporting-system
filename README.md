@@ -6,7 +6,7 @@
 
 ---
 
-## 📸 System Overview
+## 📸 System Overview v1 + v2 (with Jira issue creation and Bug Report review)
 
 ![Architecture](docs/n8n-workflow.jpg)
 ![Architecture](docs/n8n-workflow-v2.jpg)
@@ -55,7 +55,9 @@ Audio Retrieval (Telegram API)
         ↓
 Speech-to-Text (OpenAI)
         ↓
-LLM Bug Parsing (AI Agent)
+LLM Bug Rep Create (AI Agent)
+        ↓
+Bug Report review (AI Agent) (v2)
         ↓
 Structured JSON Output
         ↓
