@@ -1,0 +1,692 @@
+{
+  "name": "BugRep_Creat v2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94d715c6-f750-4891-83d4-6d452aab6446",
+      "name": "Telegram Trigger",
+      "webhookId": "98dfb0cd-e925-4b06-8da5-3c162ad89a2b",
+      "credentials": {
+        "telegramApi": {
+          "id": "DfWDlx4xEfExuLdW",
+          "name": "BUG_REP_CREATOR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/TELEGRAM_BOT_TOKEN/getFile?file_id={{$json[\"message\"][\"voice\"][\"file_id\"]}}",
+        "options": {}
+      },
+      "id": "ce39d573-4d57-4c1a-bcbd-ab4d027a1f0a",
+      "name": "Get File Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/TELEGRAM_BOT_TOKEN/{{ $json[\"result\"]?.file_path }}",
+        "options": {}
+      },
+      "id": "2914afdf-c60d-45f3-8ab1-af3648fdf19b",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        480,
+        0
+      ],
+      "id": "13a70cd2-421b-4485-ad6b-27ed76792308",
+      "name": "STT",
+      "credentials": {
+        "openAiApi": {
+          "id": "LOTYjxQwBxYcI1nF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "GSHEET_BUGREPORT_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1943108804,
+          "mode": "list",
+          "cachedResultName": "Bug_Rep_ID",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NNvYw1HVmcnpVOO4P0dWMk_3sDmh3E1Eww7_8HZmEh4/edit#gid=1943108804"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $json.type }}",
+            "Severity": "={{ $json.severity }}",
+            "Priority": "={{ $json.priority }}",
+            "Environment": "={{ $json.environment }}",
+            "Summary": "={{ $json.summary }}",
+            "Description": "={{ $json.description }}",
+            "Pre-conditions": "={{ $json.preconditions }}",
+            "Steps to reproduce": "={{ $json.steps_to_reproduce }}",
+            "Actual result": "={{ $json.actual_result }}",
+            "Expected result": "={{ $json.expected_result }}",
+            "Additional info": "={{ $json.additional }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Severity",
+              "displayName": "Severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Environment",
+              "displayName": "Environment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pre-conditions",
+              "displayName": "Pre-conditions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Steps to reproduce",
+              "displayName": "Steps to reproduce",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Actual result",
+              "displayName": "Actual result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Expected result",
+              "displayName": "Expected result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Additional info",
+              "displayName": "Additional info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "48383fca-f60c-4035-be1e-b952db05afcf",
+      "name": "Bug2Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1360,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "h59G151EeAqUvM4A",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "!Type",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.type }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Severity",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.severity }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Priority",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.priority }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Environment",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.environment }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "=!Summary",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.summary }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Description",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.description }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Pre-conditions",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.preconditions }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Steps-to-reproduce",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.steps_to_reproduce }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Actual",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.actual_result }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Expected",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.expected_result }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "!Additional",
+              "replaceText": "={{ $('Parse2DocSheet').item.json.additional }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        192
+      ],
+      "id": "8f82f994-3814-4bd0-bd1f-98a8dbd95d81",
+      "name": "Create BugRep",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "k8luOZqTORD0yVgZ",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        816,
+        208
+      ],
+      "id": "1cae6bb7-89c5-4896-8420-3cdf07b88188",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        816,
+        352
+      ],
+      "id": "b9babea8-f25f-43d0-802d-7a59ff169155",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nYou are a Senior QA Engineer for a CRM web application.\n\nYour task is to convert raw user input (RU/EN mixed allowed) into a STRICT, structured Jira-ready bug report in English.\n\nYou MUST follow ALL rules exactly.\n\nNO explanations. NO JSON. NO markdown. ONLY final bug report.\n\n---\n\n# OUTPUT RULES\n\n- Output language: ENGLISH ONLY\n- Output format: STRICT QA TEMPLATE\n- No extra text, no comments\n- Professional ISTQB QA writing style\n- Must be directly usable in Jira\n\n---\n\n# MODULE SYSTEM (CRITICAL)\n\nUse ONLY modules from the list below.\n\nMODULE TREE:\n\nLogin\n\nRegistration\n\nSetup Agency\n\nDashboard\n\nSchedule\n- Agent Schedule\n- Monthly Schedule\n- Non-working Days\n\nContacts\n\nProperties\n- My Properties\n- External Properties\n\nDeals\n\nAgency Management\n- Agents\n- Agent Schedule\n- Commissions\n- Documents\n\nFinance\n- Incentives\n- Reports\n- KPI Settings\n- KPI Reports\n\nAnalytics\n- All Events\n- AI Monitor\n\nSettings\n- Deal Types\n- AI Bot Settings\n\nPersonal Settings\n\n---\n\n# MODULE SELECTION RULES (BALANCED + SAFE)\n\n1. EXPLICIT MODULE RULE (HIGHEST PRIORITY)\nIf user explicitly mentions module or submodule → use it.\n\n---\n\n2. DEFAULT RULE\nIf only general module is mentioned → use PARENT MODULE.\n\n---\n\n3. LEAF MODULE RULE (CONDITIONAL ONLY)\n\nUse leaf module ONLY if:\n\n- submodule is explicitly mentioned OR\n- UI clearly and unambiguously indicates it\n\nOtherwise DO NOT infer leaf modules.\n\n---\n\n4. CONFIDENCE RULE\n\nLeaf module selection requires HIGH confidence.\n\nIf confidence is LOW:\n→ use parent module\n\n---\n\n5. NO OVER-INFERENCE RULE\n\nDo NOT expand:\nSchedule → Agent Schedule → Monthly Schedule unless explicitly supported by input.\n\n---\n\n# TYPE SYSTEM (STRICT)\n\nAllowed types ONLY:\n\n- UIUX (visual/design/UX issues only)\n- UI Functional (UI interaction + functional behavior issues)\n- Functional (business logic/system behavior)\n\nDO NOT USE:\nBackend / API / Security / Performance\n\n---\n\n# UI ELEMENT FORMATTING RULE (CRITICAL)\n\nAll UI elements MUST be wrapped in double quotes \"\".\n\nIncludes:\n- Buttons\n- Tabs\n- Menu items\n- Dropdowns\n- Links\n- Form fields\n\nRules:\n- Do NOT translate UI text\n- Do NOT paraphrase UI text\n- NEVER remove quotes\n\nExample:\nClick \"Dashboard\"\nOpen \"Deals\"\nPress \"Add Deal\"\n\n---\n\n# ENVIRONMENT (DEFAULT)\n\nIf OS and browser not specified:\n\nWindows 10 Pro x64\nGoogle Chrome (latest version)\n\nPages:\n\nRelease:\nRelease - https://release.realecon-web.emdula.com/login\n\nDevelop:\nDevelop - https://develop.realecon-web.emdula.com/\n\nMarketing:\nMarketing - https://marketing.realecon-web.emdula.com/\n\n---\n\n# PRECONDITIONS RULE (STRICT)\n\nAlways include PRECONDITIONS.\n\nDefault:\n1. Page is opened\n2. User is logged in as Admin (or Employer if specified)\n\nDo NOT include login steps in Steps if already covered.\n\n---\n\n# STEPS TO REPRODUCE RULE\n\n- Numbered list only\n- Start from first action after Preconditions\n- UI elements MUST be quoted\n- No navigation duplication\n\n---\n\n# VRVN SUMMARY RULE (VERY IMPORTANT)\n\nSummary MUST:\n\n- be 1 sentence only\n- be concise\n- NOT repeat Description\n- contain ONLY module + issue statement\n\nFORMAT:\n\n[Module] What is wrong + Where (short)\n\nExample:\n[Schedule] Working day displayed as non-working in calendar view\n\n---\n\n# VRVN DESCRIPTION RULE (STRUCTURED ANALYTICAL)\n\nDescription MUST follow:\n\n1. What is happening\n2. Where it happens\n3. Impact on user/system\n\nRules:\n- NO steps\n- NO repetition of Summary\n- NO UI instructions\n\nExample:\n\nDescription:\nThe system displays working days as non-working in the agent schedule calendar.\nThis issue occurs in the Schedule module during calendar view.\nThis leads to incorrect representation of agent availability.\n\n---\n\n# SEVERITY RULES\n\ncritical - system broken, core functionality unusable\nmajor - feature broken, partially blocking\nminor - issue exists but workaround available\ntrivial - cosmetic issue only\n\n---\n\n# PRIORITY RULES\n\nlow / medium / high only\n\n---\n\n# OUTPUT FORMAT (STRICT TEMPLATE)\n\nReporter:\nAlexandr\n\nSummary:\n[Module] What, Where, When\n\nType:\nUIUX / UI Functional / Functional\n\nDescription:\n(text)\n\nEnvironment:\n(default or specified)\n\nPreconditions:\n1.\n2.\n\nSteps to Reproduce:\n1.\n2.\n3.\n\nActual Result:\n1.\n\nExpected Result:\n1.\n\nPriority:\nlow / medium / high\n\nSeverity:\ntrivial / minor / major / critical / blocker\n\nAdditional:\n(optional)\n\n---\n\n# FINAL RULES\n\n- NEVER output JSON\n- NEVER explain anything\n- ALWAYS use English only\n- ALWAYS follow structure exactly\n- ALWAYS prefer explicit modules\n- ALWAYS enforce UI quoting\n- ALWAYS keep VRVN Summary + Description style\n\n# RAW USER INPUT: {{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "39faa624-f862-44bf-8a00-a1a36c835cfe",
+      "name": "BurRep Creater"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Senior QA Engineer and QA Normalizer for a CRM system.\n\nYour task is to transform a bug report into a clean, standardized, ISTQB-style JSON for Jira automation.\n\n---\n\n# 🧠 CORE RULE\n\nYOU MUST ALWAYS PRODUCE A VALID BUG REPORT.\n\nNever output placeholders like:\n- \"No data provided\"\n- \"N/A\"\n- \"Unable to determine issue\"\n- \"Insufficient input\"\n\nIf information is missing, use ONLY the GENERATED BUG REPORT as the source of truth.\n\n---\n\n# 📌 SOURCE PRIORITY (VERY IMPORTANT)\n\nYou will receive two inputs:\n\n1. GENERATED BUG REPORT (PRIMARY SOURCE - ALWAYS USE THIS)\n2. RAW USER INPUT (SECONDARY SOURCE - OPTIONAL)\n\nRULE:\n- If raw input is empty, invalid, or incomplete → IGNORE IT completely\n- NEVER block processing because raw input is missing\n- NEVER mention missing input in output\n\n---\n\n# ⚙️ YOUR TASK\n\nYou MUST:\n\n1. Convert GENERATED BUG REPORT into strict JSON\n2. Normalize structure for Jira automation\n3. Fix formatting issues (not meaning)\n4. Ensure ISTQB compliance\n5. Ensure arrays are arrays, strings are strings\n6. Ensure clean, consistent structure\n\n---\n\n# 🚫 STRICT FORBIDDEN RULES\n\nYou are NOT allowed to:\n- delete any field from input\n- invent new facts\n- add external assumptions\n- output placeholders like \"N/A\"\n- refuse to generate output\n- mention missing data\n- degrade report quality because of missing raw input\n\n---\n\n# 🧾 FIELD RULES\n\n## summary\n- Format: [Module] Issue + location\n- Must reflect GENERATED BUG REPORT only\n\n## description\nMust contain 3 blocks:\n- Problem\n- Context\n- Impact\n\nNo steps inside description.\n\n## steps_to_reproduce\n- Only factual steps from GENERATED BUG REPORT\n- If missing → leave empty array []\n\n## actual_result / expected_result\n- Short factual statements only\n\n---\n\n# 🧱 TYPE RULE\n\nAllowed:\n- UIUX\n- UI Functional\n- Functional\n\nChoose strictly based on GENERATED BUG REPORT only.\n\n---\n\n# 🧾 OUTPUT FORMAT (STRICT JSON ONLY)\n\nReturn ONLY valid JSON. No markdown. No explanation.\n\n{\n  \"reporter\": \"\",\n  \"summary\": \"\",\n  \"type\": \"\",\n  \"description\": \"\",\n  \"environment\": \"\",\n  \"preconditions\": [],\n  \"steps_to_reproduce\": [],\n  \"actual_result\": [],\n  \"expected_result\": [],\n  \"priority\": \"\",\n  \"severity\": \"\",\n  \"additional\": \"\"\n}\n\n---\n\n# FINAL RULE\n\n- Output ONLY JSON\n- Never refuse\n- Never say \"insufficient data\"\n- Always use GENERATED BUG REPORT as main source\n\n---\n\n# INPUT\n\nGENERATED BUG REPORT:\n{{ $json.output }}\n\nRAW USER INPUT:\n{{ $('STT').item.json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        672,
+        192
+      ],
+      "id": "c3846f00-0a69-4342-b052-673c6d209afc",
+      "name": "BugRep Rev+Fix"
+    },
+    {
+      "parameters": {
+        "model": "grok-4.3",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatXAiGrok",
+      "typeVersion": 1,
+      "position": [
+        672,
+        352
+      ],
+      "id": "318a754b-5a24-4e0e-87a4-ad38712b52b9",
+      "name": "Grok",
+      "credentials": {
+        "xAiApi": {
+          "id": "PUPk3HDoxMUuSHKL",
+          "name": "xAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10001",
+          "mode": "list",
+          "cachedResultName": "My Software Team"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10008",
+          "mode": "list",
+          "cachedResultName": "Баг"
+        },
+        "summary": "={{ $json.summary }}",
+        "additionalFields": {
+          "description": "={{ $json.description }}",
+          "priority": {
+            "__rl": true,
+            "value": "={{ $json.priority_id }}",
+            "mode": "id"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        192
+      ],
+      "id": "f7a2d6f7-58fb-4b68-add7-8232f19ad6e9",
+      "name": "BugRep2Jira",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "ZgVoPCu5MAchRZ75",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output;\n\n// 1. parse JSON\nconst data = JSON.parse(raw);\n\n// 2. summary\nconst summary = (data.summary || '').replace(/\\n/g, ' ').trim();\n\n// helper\nconst asArray = (v) => Array.isArray(v) ? v : (v ? [v] : []);\n\n// 3. priority mapping (Jira-friendly)\nconst priorityMap = {\n  highest: \"1\",\n  high: \"2\",\n  medium: \"3\",\n  low: \"4\",\n  lowest: \"5\"\n};\n\nconst priorityRaw = (data.priority || '').toLowerCase();\nconst priority_id = priorityMap[priorityRaw] || \"3\";\n\n// 4. arrays\nconst preconditions = asArray(data.preconditions);\nconst steps = asArray(data.steps_to_reproduce);\nconst actual = asArray(data.actual_result);\nconst expected = asArray(data.expected_result);\n\n// 5. block formatter\nconst block = (title, value) =>\n`${title}:\\n${value}`;\n\n// 6. description (как у тебя было)\nconst description =\n`${block('REPORTER', data.reporter || '-')}\n\n${block('TYPE', data.type || '-')}\n\n${block('DESCRIPTION', data.description || '-')}\n\n${block('ENVIRONMENT', data.environment || '-')}\n\n${block('PRECONDITIONS', preconditions.length ? preconditions.join('\\n') : '-')}\n\n${block('STEPS TO REPRODUCE', steps.length ? steps.map((s, i) => `${i + 1}. ${s}`).join('\\n') : '-')}\n\n${block('ACTUAL RESULT', actual.length ? actual.join('\\n') : '-')}\n\n${block('EXPECTED RESULT', expected.length ? expected.join('\\n') : '-')}\n\n${block('PRIORITY', data.priority || '-')}\n\n${block('SEVERITY', data.severity || '-')}\n\n${block('ADDITIONAL', data.additional || '-')}`.trim();\n\n// 7. return\nreturn [\n  {\n    json: {\n      summary,\n      description,\n      priority: data.priority || '-',\n      priority_id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        192
+      ],
+      "id": "a6209c9e-0b48-462b-897e-30fe032a8fc4",
+      "name": "Parse2Jira"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "GDOC_TEMPLATE_ID",
+          "mode": "id"
+        },
+        "name": "=BugRep-{{ $now.format(\"yyyy-LL-dd-T\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1360,
+        192
+      ],
+      "id": "fc958184-4057-45f5-9bf0-62c4391165b3",
+      "name": "Copy fr Template",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Zgtnhny4XewAYx7m",
+          "name": "Calendar OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.ID }} {{ $json.Summary }}\n{{ $json.Type }}, {{ $json.Severity }}, {{ $json.Priority }}\n\n{{ $json.Environment }}\n\n{{ $json.Description }}\n\n{{ $json['Pre-conditions'] }}\n\n{{ $json['Steps to reproduce'] }}\n\n{{ $json['Actual result'] }}\n\n{{ $json['Expected result'] }}",
+        "replyMarkup": "replyKeyboardRemove",
+        "replyKeyboardRemove": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1504,
+        0
+      ],
+      "id": "852c1c9e-1dca-4b25-bff2-4a8012f244c4",
+      "name": "Send confirm",
+      "webhookId": "65df4d0c-5452-4cb2-8147-7b9d8bccde3a",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "DfWDlx4xEfExuLdW",
+          "name": "BUG_REP_CREATOR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output;\n\n// 1. parse JSON safely\nconst data = JSON.parse(raw);\n\n// 2. summary cleanup\nconst summary = (data.summary || '').replace(/\\n/g, ' ').trim();\n\n// helper\nconst asArray = (v) => Array.isArray(v) ? v : (v ? [v] : []);\n\n// 3. formatted fields\n\nconst reporter = data.reporter || '-';\nconst type = data.type || '-';\nconst environment = data.environment || '-';\nconst priority = data.priority || '-';\nconst severity = data.severity || '-';\nconst additional = data.additional || '-';\n\nconst description = data.description || '-';\n\nconst preconditions = asArray(data.preconditions).length\n  ? asArray(data.preconditions).join('\\n')\n  : '-';\n\nconst steps_to_reproduce = asArray(data.steps_to_reproduce).length\n  ? asArray(data.steps_to_reproduce).map((s, i) => `${i + 1}. ${s}`).join('\\n')\n  : '-';\n\nconst actual_result = asArray(data.actual_result).length\n  ? asArray(data.actual_result).join('\\n')\n  : '-';\n\nconst expected_result = asArray(data.expected_result).length\n  ? asArray(data.expected_result).join('\\n')\n  : '-';\n\n// 4. return split structure\nreturn [\n  {\n    json: {\n      summary,\n      reporter,\n      type,\n      description,\n      environment,\n      preconditions,\n      steps_to_reproduce,\n      actual_result,\n      expected_result,\n      priority,\n      severity,\n      additional\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "76c0e912-ec3b-4c20-b8da-5c44d1a875a5",
+      "name": "Parse2DocSheet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "STT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STT": {
+      "main": [
+        [
+          {
+            "node": "BurRep Creater",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get File Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Info": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bug2Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "BugRep Rev+Fix",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "BurRep Creater",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BurRep Creater": {
+      "main": [
+        [
+          {
+            "node": "BugRep Rev+Fix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BugRep Rev+Fix": {
+      "main": [
+        [
+          {
+            "node": "Parse2Jira",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse2DocSheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grok": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "BurRep Creater",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "BugRep Rev+Fix",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse2Jira": {
+      "main": [
+        [
+          {
+            "node": "BugRep2Jira",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy fr Template": {
+      "main": [
+        [
+          {
+            "node": "Create BugRep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse2DocSheet": {
+      "main": [
+        [
+          {
+            "node": "Bug2Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Copy fr Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "1d303b5b-33ab-47a5-91bb-d5ed53bc5c4f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "144ec203f82f262190a759eb7badfa8217bf8c4d4687b5c5ad9fc814ba3a05f9"
+  },
+  "id": "Ac0pysUuPj8eA3XJ",
+  "tags": []
+}
