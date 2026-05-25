@@ -9,6 +9,7 @@
 ## 📸 System Overview
 
 ![Architecture](docs/n8n-workflow.jpg)
+![Architecture](docs/n8n-workflow-v2.jpg)
 
 ---
 
@@ -63,3 +64,5 @@ Google Sheets Storage
 Google Docs Generation
         ↓
 Telegram Response
+        ↓
+Jira issue task create (v2)
